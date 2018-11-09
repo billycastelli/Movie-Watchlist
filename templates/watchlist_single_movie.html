@@ -1,0 +1,20 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+
+  <br>
+  <div class="container">
+  <br>
+  <div class="row">
+  	<div class="col-md-2">
+	<img style = "width:100%" src = {{ movie.poster }}>
+	    </div>
+	    <div class="col-md-10">
+	  	  <h2>{{ movie.title }}</h2>
+	  	  <p>{{ movie.overview }}</p>
+	    </div>
+	</div>
+	<hr>
+  </div>
+{% endblock %}
+

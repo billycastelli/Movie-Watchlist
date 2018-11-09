@@ -1,0 +1,13 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+
+<div class = "container">
+  <h1>Welcome, {{ session['username'] }}</h1>
+  <p>Soon, you will be able to view your watchlists on this page</p>
+  <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_new_list') }}" role="button">New List</a>
+
+</div>
+
+{% endblock %}
+

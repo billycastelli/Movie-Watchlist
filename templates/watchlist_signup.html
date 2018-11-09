@@ -1,0 +1,25 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+	<br>
+	<div class = "text-center">
+		<h4>Sign up for an account to create film watchlists</h4>
+		<br>
+		  <form action="" method="post" style="width: 50%; margin-left: auto; margin-right: auto;">
+			<input class = form-control type="text" placeholder="Username" name="username" value="{{
+			  request.form.username }}"> <br>
+			  
+			 <input class = form-control type="password" placeholder="Password" name="password" value="{{
+			  request.form.password }}"> <br>
+			  
+			 <input class=form-control type="password" placeholder="Confirm Password" name="confirm" value="{{request.form.confirm}}"> <br>
+			  
+			<input class="btn btn-primary" type="submit" value="Sign Up">
+		  </form>
+		  {% if error %}
+			<p class="error"><strong>Error:</strong> {{ error }}</p>
+		  {% endif %}
+	</div>
+
+{% endblock %}
+

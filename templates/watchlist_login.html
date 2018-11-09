@@ -1,0 +1,14 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+  <br>
+  <div class="text-center">
+    <h4>Log in to view your watchlists</h4>
+    <br>
+    <form action="" method="post" style="width: 50%; margin-left: auto; margin-right: auto;">
+      <input type="text" class="form-control" placeholder="Username" name="username" value="{{request.form.username}}"><br>
+      <input type="password" class="form-control" placeholder="Password" name="password" value="{{request.form.password}}"><br>
+      <input class="btn btn-secondary btn-lg" type="submit" value = "Login">
+  </div>
+
+{% endblock %}

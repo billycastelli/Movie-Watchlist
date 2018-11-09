@@ -1,0 +1,25 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+
+  <br>
+  <div class="container">
+  <h1>Search results:</h1>
+  <br>
+  {% for i in range(size) %}
+    <div class="row">
+  		<div class="col-md-2">
+          <a href = "http://williamcastelli.com/watchlist/movie/{{ results[i].mid }}">
+          <img class = "clickable" style = "width:100%" src = {{ results[i].poster }}>
+        </a>
+	    </div>
+	    <div class="col-md-10">
+	  	  <h2>{{ results[i].title }}</h2>
+	  	  <p>{{ results[i].overview }}</p>
+	    </div>
+	 </div>
+	 <hr>
+  {% endfor %}
+  </div>
+{% endblock %}
+

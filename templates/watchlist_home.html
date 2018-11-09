@@ -1,0 +1,31 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+  <br>
+  <div class="text-center">
+    <h4 style>Create a list...</h4>
+    {% if session['logged_in'] == True %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_new_list') }}" role="button">New List</a>
+    {% else %}
+    <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_login') }}" role="button">New List</a>
+    {% endif %}
+
+  </div>
+  <br>
+  <div class = "container">
+  <div class = "text-center">
+    <h4> Now Trending</h4>
+  </div>
+  <div class="row">
+  {% for i in range(6) %}
+    <div style = "padding-right: .15%; padding-left: .15%;" class="col-md-2">
+      <a href = "http://williamcastelli.com/watchlist/movie/{{ top_movies[i].mid }}" title = "{{ top_movies[i].title }}">
+        <img class = "clickable" style = "width: 100%" src = {{ top_movies[i].poster }}>
+      </a>
+      <br>
+    </div>
+  {% endfor %}
+  </div>
+  </div>
+{% endblock %}
+

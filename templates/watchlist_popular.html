@@ -1,0 +1,25 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+
+  <br>
+  <div class="container">
+  <h1>Here are today's popular films:</h1>
+  <br>
+  {% for i in range(10) %}
+    <div class="row">
+  		<div class="col-md-2">
+          <a href = "http://williamcastelli.com/watchlist/movie/{{ top_movies[i].mid }}">
+          <img class = "clickable" style = "width:100%" src = {{ top_movies[i].poster }} >
+        </a>
+	    </div>
+	    <div class="col-md-10">
+	  	  <h2>{{ top_movies[i].title }}</h2>
+	  	  <p>{{ top_movies[i].overview }}</p>
+	    </div>
+	 </div>
+	 <hr>
+  {% endfor %}
+  </div>
+{% endblock %}
+
