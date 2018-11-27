@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, flash, url_for, redirect, session #,g (check it out, alternative to session)
-from Player import Player
 import tmdb
 from dbconnect import connect
 
@@ -7,6 +6,7 @@ from wtforms import Form, TextField, PasswordField, validators
 from passlib.hash import sha256_crypt
 from MySQLdb import escape_string as thwart
 import gc
+import datetime
 
 
 app = Flask(__name__)
@@ -15,32 +15,6 @@ app = Flask(__name__)
 def homepage():
     return render_template("main.html")
 
-@app.route('/about')
-def about():
-    return render_template("about.html")
-
-@app.route('/mlb/input', methods = ['GET', 'POST'])
-def input():
-    if request.method == "POST":
-        playerName = request.form['playerName']
-        playerName = playerName.replace(" ", "_")
-        return redirect(url_for('stat', username=playerName))
-    return render_template("mlbenter.html")
-
-
-@app.route('/mlb/stats/<username>', methods = ['POST', 'GET'])
-def stat(username):
-    playerName = username.replace("_", " ")
-    try:
-        p = Player(playerName)
-    except:
-        return "Error"
-    tups, cols, totals = p.getStats()
-    name = p.getName()
-    return render_template("mlbstats.html", info = tups, cols = cols,
-            name = name, totals = totals, stat=8, username=playerName)
-
-#----------------------------------------------------
 # Begin Watchlist code
 
 @app.route('/watchlist')
@@ -48,10 +22,38 @@ def watchlist_home():
     top_movies = tmdb.get_trending(timeframe = 'day')
     return render_template("watchlist_home.html", top_movies = top_movies)
 
-@app.route('/watchlist/movie/<mid>')
+@app.route('/watchlist/movie/<mid>', methods = ['GET', 'POST'])
 def watchlist_film_view(mid):
     movie = tmdb.get_movie(mid)
-    return render_template("watchlist_single_movie.html", movie=movie)
+    wls = []
+    if request.method == "POST":
+        try:
+	    choice = request.form['list_name']
+	    try:
+            	lid = int(request.form['list_name'])
+	    except:
+		flash("You must select a choice from your watchlists")
+		return redirect(url_for("watchlist_film_view", mid=mid))
+            uid = session['uid']
+            curs, connection = connect()
+            curs.execute('INSERT INTO movies(mid, title, poster, release_date, overview, lid, uid) \
+                         VALUES("%d", "%s", "%s", "%s", "%s", "%d", "%d")'\
+                         %(int(movie.mid), str(movie.title), str(movie.poster), str(movie.release_date), str(movie.overview), lid, uid))
+            connection.commit()
+            flash("%s added to list"%(str(movie.title)))
+            curs.close()
+            connection.close()
+            return redirect(url_for("watchlist_film_view", mid = int(movie.mid)))
+        except Exception as e:
+            return str(e)
+
+    try:
+        session['logged_in']
+        wls = get_watchlists()
+        return render_template("watchlist_single_movie.html", movie=movie, wls = wls)
+    except:
+        return render_template("watchlist_single_movie.html", movie=movie, wls = wls)
+ 
 
 @app.route('/watchlist/search/')
 def watchlist_search():
@@ -62,6 +64,7 @@ def watchlist_search():
     results = tmdb.search(str(title))
     size = len(results)
     return render_template("watchlist_search.html", results=results, size = size)
+
 
 @app.route('/watchlist/login', methods = ['GET', 'POST'])
 def watchlist_login():
@@ -108,6 +111,7 @@ def watchlist_logout():
     session.pop('username', None)
     flash("You have been logged out.")
     return redirect(url_for('watchlist_home'))
+
 
 ###### Registration Begin
 
@@ -161,19 +165,77 @@ def watchlist_signup():
 
 ###### Registration End
 
-@app.route('/watchlist/mylists', methods = ['GET', 'POST'])
-def watchlist_mylists():
-    return render_template("watchlist_mylists.html")
-
 @app.route('/watchlist/me', methods = ['GET', 'POST'])
 def watchlist_me():
-    return render_template("watchlist_me.html")
+    return redirect(url_for("watchlist_mylists"))
+
+@app.route('/watchlist/mylists', methods = ['GET', 'POST'])
+def watchlist_mylists():
+    try:
+        session['logged_in']
+        lists_info = []
+        curs, connection = connect()
+        curs.execute('SELECT * \
+                      FROM lists2 \
+                      WHERE uid = %d and username = "%s"'%(session["uid"], session['username']))
+        listtup = curs.fetchall()
+        for tup in listtup:
+            tup = list(tup)
+            tup[4] = tup[4].strftime("%m-%d-%y")
+            lists_info.append(tup)
+        curs.close()
+        connection.close()
+        return render_template("watchlist_mylists.html", lists_info = lists_info)
+    except:
+        flash("Please login to view your watchlists")
+        return redirect(url_for("watchlist_login"))
+        
+
+@app.route('/watchlists/mylists/<lid>')
+def watchlist_list_view(lid):
+    curs, connection = connect()
+    curs.execute('SELECT watchlist_name, data FROM lists2 WHERE lid = "%d"'%(int(lid)))
+    list_info = curs.fetchone()
+    name = list_info[0]
+    date = list_info[1].strftime("%m-%d-%y")
+    curs.execute('SELECT * FROM movies WHERE lid = "%d"'%(int(lid)))
+    movies = curs.fetchall()
+    return render_template("watchlist_list_view.html", name=name, movies=movies, size = len(movies), date=date)
 
 
 @app.route('/watchlist/new_list', methods = ['GET', 'POST'])
 def watchlist_new_list():
-    return render_template("watchlist_new_list.html")
+    try:
+        if session['logged_in']:
+            if request.method == "POST":
+                wlname = request.form['wlname']
+                curs, connection = connect()
+                curs.execute('INSERT INTO lists2 (uid, username, watchlist_name) \
+                            VALUES (%d, "%s", "%s");'%
+                            (session["uid"], thwart(session["username"]), thwart(wlname)))
+                connection.commit()
+                flash('"%s" list added!'%(wlname))
+                curs.close()
+                connection.close()
+                return redirect(url_for("watchlist_mylists"))
+            return render_template("watchlist_new_list.html")
+        flash("You must login before creating a new list")
+        return redirect(url_for("login"))
+    except Exception as e:
+        return str(e)
 
+### Helper
+
+def get_watchlists():
+    wls = []
+    curs, connection = connect()
+    curs.execute('SELECT * \
+                  FROM lists2 \
+                  WHERE uid = %d and username = "%s"'%(session["uid"], session['username']))
+    tups = curs.fetchall()
+    for tup in tups:
+        wls.append(tup)
+    return wls
+    
 if __name__ == "__main__":
     app.run(debug=True)
-
