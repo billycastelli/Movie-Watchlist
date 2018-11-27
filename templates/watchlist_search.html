@@ -8,14 +8,15 @@
   <br>
   {% for i in range(size) %}
     <div class="row">
-  		<div class="col-md-2">
+  		<div class="col-4 col-md-2">
           <a href = "http://williamcastelli.com/watchlist/movie/{{ results[i].mid }}">
           <img class = "clickable" style = "width:100%" src = {{ results[i].poster }}>
         </a>
 	    </div>
-	    <div class="col-md-10">
+	    <div class="col-8 col-md-10">
 	  	  <h2>{{ results[i].title }}</h2>
 	  	  <p>{{ results[i].overview }}</p>
+      <a class="btn btn-success btn" href="http://williamcastelli.com/watchlist/movie/{{ results[i].mid }}" role="button">More info</a>
 	    </div>
 	 </div>
 	 <hr>

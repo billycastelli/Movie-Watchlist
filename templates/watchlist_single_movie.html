@@ -6,14 +6,34 @@
   <div class="container">
   <br>
   <div class="row">
-  	<div class="col-md-2">
-	<img style = "width:100%" src = {{ movie.poster }}>
-	    </div>
-	    <div class="col-md-10">
-	  	  <h2>{{ movie.title }}</h2>
-	  	  <p>{{ movie.overview }}</p>
+  	<div class="col-4 col-md-2">
+	   <img style = "width:100%" src = {{ movie.poster }}>
+	</div>
+	    <div class="col-8 col-md-10">
+	  	  	<h2>{{ movie.title }}</h2>
+	  	  	<p class="text-muted">Release Date: {{ movie.release_date }}</p>
+
+	  	  	<p>{{ movie.overview }}</p>
+			{% if wls |length > 0 and session['logged_in'] %}
+			<div class = "row">		    		
+				<div class="col-sm-2">
+
+				<form style = "margin: 0; padding: 0;" method = "post">
+					<select class="custom-select col-sm-4" id = "list_name" name = "list_name">
+					  <option selected>Select a list</option>
+					  {% for i in range(wls|length)%}
+					  <option value= "{{ wls[i][0] }}">{{ wls[i][3] }}</option>
+					  {% endfor %}
+					</select>
+		      			<button type="submit" class="btn btn-primary">Add to list</button>
+		    		</div>
+				</form>
+			</div>
+			{% endif %}
 	    </div>
 	</div>
+	<br>
+
 	<hr>
   </div>
 {% endblock %}

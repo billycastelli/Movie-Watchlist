@@ -1,0 +1,30 @@
+{% extends "watchlist_base.html" %}
+
+{% block content %}
+
+<div class = "container">
+	<br>
+	<h1>{{ name }}</h1>
+	<p class = "text-muted">Movies: {{ size }} • Date created: {{date}}</p>
+	<br>
+	{% if size == 0 %}
+		<h4>No movies in this list. Go add some!</h4>
+	{% endif %}
+	{% for i in range(size) %}
+	<div class="row">
+	  <div class="col-4 col-md-2">
+	      <a href = "http://williamcastelli.com/watchlist/movie/{{ movies[i][0] }}">
+	      <img class = "clickable" style = "width:100%" src = {{ movies[i][2] }}>
+	    </a>
+	    </div>
+	    <div class="col-8 col-md-10">
+	  	  <h2>{{ movies[i][1] }}</h2>
+	  	  <p>{{ movies[i][4] }}</p>
+	    </div>
+	 </div>
+	 <hr>
+	{% endfor %}
+
+</div>
+
+{% endblock %}

@@ -1,5 +1,17 @@
 {% extends "watchlist_base.html" %}
 
 {% block content %}
+<div class = "text-center">
+  <br>
   <h4>Create a new watchlist</h4>
+  <form action="" method="post" style="width: 50%; margin-left: auto; margin-right: auto;">
+	<input class = "form-control form-control-lg" type="text" placeholder="Horror Movies, Indie Movies..." name="wlname" value="{{
+	  request.form.wlname }}"> <br>
+	  	  
+	<input class="btn btn-primary" type="submit" value="Confirm">
+  </form>
+  {% if error %}
+	<p class="error"><strong>Error:</strong> {{ error }}</p>
+  {% endif %}
+ </div>
 {% endblock %}
