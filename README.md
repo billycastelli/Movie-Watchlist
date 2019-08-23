@@ -1,6 +1,6 @@
 # Movie-Watchlist
 
-A Flask web application that allows the user to create and save movie watchlists. Communicates with The Movie Database Api (https://www.themoviedb.org) to retreive film data. Website is still under construction. You can see it here: http://williamcastelli.com/watchlist
+Flask web application that allows the user to create and save movie watchlists. Communicates with The Movie Database Api (https://www.themoviedb.org) to retreive film data. Website is still under construction. You can see it here: http://williamcastelli.com/watchlist
 
 
 Homepage
