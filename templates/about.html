@@ -1,0 +1,46 @@
+{% extends "main_base.html" %}
+
+{% block content %}
+  
+  <div class="container">
+    <h1>About me</h1>
+    <p>I am a Computer Science major at UCI with many interests and hobbies. I have a love for technology which is part of the reason I am making this website and pursuing computer science as a career. My first software related job was in summer 2018 when I interned at General Atomics ASI. At General Atomics, I was able to improve my Python skills and work with new tools. I am looking forward to my next internship experience at Viasat Carlsbad as an IT Software Engineering intern.</p> 
+
+<p>
+On the side, I have always had an interest in web and app development. It wasn't until attending a few workshops that I realized I could use Python (my first language!) as a back-end for web applications. This web site and all the projects linked here are written using the Flask framework, my own HTML/CSS/JavaScipt, and Boostrap. Right now, I am using Digital Ocean to host this site (this may change).</p>
+<p>This website is still under construction. I try to work on it in my free time. As of December 2018, I have been working on my Watchlist application mostly because I really dislike the IMDB watchlist system and I want to make a replacement (even if nobody uses it but me!).</p>
+<p>
+Thanks for reading!</p>
+
+<p>Things that have interested me recently:</p>
+
+<p>I have this addictive habit of collecting old Apple Computers (PowerPC G3/G4 and early Intel era) and refurbishing them. Unfortunately, these computers are getting harder to find, and therefore are getting more expensive to buy and repair. </p>
+
+    <h2>Interests</h2>
+    <ul>
+      <li>Programming</li>
+      <li>Baseball</li>
+      <li>Movies</li>
+      <li>Music</li>
+      <li>Vintage Apple Computers</li>
+      <li>Comics</li>
+    </ul>
+  </div>
+
+
+
+
+  <div class = "text-center">
+  <a href="https://github.com/billycastelli">
+    <img src= "{{url_for('static', filename='images/github.png') }}" alt="Github" style="width:42px;height:42px;border:0;">
+  </a>
+  <a href="https://www.linkedin.com/in/william-castelli-864217155/">
+    <img src= "{{url_for('static', filename='images/linkedin.png') }}" alt="Linkedin" style="width:42px;height:42px;border:0;">
+  </a>
+  <a href="https://www.facebook.com/billy.castelli">
+    <img src= "{{url_for('static', filename='images/facebook.png') }}" alt="Facebook" style="width:42px;height:42px;border:0;">
+  </a>
+  </div>
+  <br>
+  <br>
+{% endblock %}

@@ -1,17 +1,16 @@
-from flask import Flask, render_template, request, flash, url_for, redirect, session #,g (check it out, alternative to session)
-from Player2 import Player
+from flask import Flask, render_template, request, flash, url_for, redirect, session
 import tmdb
-from dbconnect import connect
+from dbconnecter import connect
 import watchlist
 
 from wtforms import Form, TextField, PasswordField, validators
 from passlib.hash import sha256_crypt
-from MySQLdb import escape_string as thwart
 import gc
 import datetime
 
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'SECRET'    
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -22,54 +21,11 @@ def page_not_found(e):
     return render_template('500.html'), 500
 
 @app.route('/')
-def homepage():
-    return render_template("main.html")
-
-@app.route('/about')
-def about():
-    return render_template("about.html")
-
-@app.route('/mlb/input', methods = ['GET', 'POST'])
-def input():
-    if request.method == "POST":
-        playerName = request.form['playerName']
-        if playerName == "" or None:
-            flash("You must enter a player name")
-            return redirect(url_for('input'))
-        playerName = playerName.replace(" ", "_")
-        return redirect(url_for('stat', username=playerName))
-    return render_template("mlbenter.html")
-
-
-@app.route('/mlb/stats/<username>', methods = ['POST', 'GET'])
-def stat(username):
-    if username == "" or None:
-        flash("You must enter a player name")
-        return redirect(url_for('input'))
-    playerName = username.replace("_", " ")
-    try:
-        p = Player(playerName)
-    except:
-        flash("Invalid player name, try again")
-        return redirect(url_for("input"))
-    tups, cols, totals = p.getStats()
-    name = p.getName()
-    return render_template("mlbstats.html", info = tups, cols = cols,
-            name = name, totals = totals, stat=8, username=playerName)
-
-@app.route('/mlb/about')
-def mlb_about():
-    return render_template("mlb_about.html")
-
-#----------------------------------------------------
-# Begin Watchlist code
-
-@app.route('/watchlist')
 def watchlist_home():
     top_movies = tmdb.get_trending(timeframe = 'day')
     return render_template("watchlist_home.html", top_movies = top_movies)
 
-@app.route('/watchlist/movie', methods = ['GET', 'POST'])
+@app.route('/movie', methods = ['GET', 'POST'])
 def watchlist_film_view():
     mid = request.args.get("mid", default = "")
     movie = tmdb.get_movie(mid)
@@ -81,7 +37,7 @@ def watchlist_film_view():
             flash("You must select a choice from your watchlists")
             return redirect(url_for("watchlist_film_view", mid=mid))
         uid = session['uid']
-        curs, connection = connect()
+        connection, curs = connect()
         if watchlist.duplicate_movie(curs, int(movie.mid), lid):
             flash("%s is already in that list!"%movie.title)
             return redirect(url_for("watchlist_film_view", mid=mid))
@@ -96,13 +52,14 @@ def watchlist_film_view():
 
     try:
         session['logged_in']
-        wls = watchlist.get_watchlists()
+        wls = get_watchlists()
         return render_template("watchlist_single_movie.html", movie=movie, wls = wls)
-    except:
+    except Exception as e:
+	#flash(str(e))
         return render_template("watchlist_single_movie.html", movie=movie, wls = wls)
  
 
-@app.route('/watchlist/search')
+@app.route('/search')
 def watchlist_search():
     title = request.args.get('title')
     if title == "" or None:
@@ -112,21 +69,19 @@ def watchlist_search():
     size = len(results)
     return render_template("watchlist_search.html", results=results, size = size)
 
-
-@app.route('/watchlist/login', methods = ['GET', 'POST'])
+@app.route('/login', methods = ['GET', 'POST'])
 def watchlist_login():
     if request.method == "POST":
         attempted_username = request.form['username']
         attempted_password = request.form['password']
-        curs, connection = connect()
-        
-        data = curs.execute('SELECT * \
+        connection, curs = connect()
+        curs.execute('SELECT * \
                             FROM users \
                             WHERE username = "%s"'%(attempted_username))
-        if int(data) == 0:
+        userInfo = curs.fetchone()
+        if userInfo == None:
             flash("Username not found. Try a different username, or create an account.")
             return render_template("watchlist_login.html")
-        userInfo = curs.fetchone()
         uid, username, password = userInfo
         curs.close()
         connection.close()
@@ -145,22 +100,20 @@ def watchlist_login():
             return str(e)
     return render_template("watchlist_login.html")
 
-@app.route('/watchlist/popular')
+@app.route('/popular')
 def watchlist_popular():
     top_movies = tmdb.get_trending(timeframe = 'day')
     #return str(top_movies)
     return render_template("watchlist_popular.html", top_movies = top_movies)
 
 
-@app.route('/watchlist/logout', methods = ['GET', 'POST'])
+@app.route('/logout', methods = ['GET', 'POST'])
 def watchlist_logout():
     session.pop('logged_in', False)
     session.pop('username', None)
     flash("You have been logged out.")
     return redirect(url_for('watchlist_home'))
 
-
-###### Registration Begin
 
 class RegistrationForm(Form):
     '''Child of a WTForm Form object...'''
@@ -170,7 +123,7 @@ class RegistrationForm(Form):
                                           message = "Passwords must match")])
     confirm = PasswordField('Confirm Password')
 
-@app.route('/watchlist/signup', methods = ['GET', 'POST'])
+@app.route('/signup', methods = ['GET', 'POST'])
 def watchlist_signup():
     session.pop('_flashes', None)
     try:
@@ -179,17 +132,17 @@ def watchlist_signup():
         if request.method == "POST" and form.validate(): #if the form info is valid
             username = form.username.data
             password = sha256_crypt.encrypt(str(form.password.data))
-            curs, connection = connect()
+            connection, curs = connect()
             #Check if username already exists in database
             count = curs.execute("SELECT * \
                               FROM users \
-                              WHERE username = (%s);", (thwart(username),))
+                              WHERE username = (%s);", (username,))
             if int(count) > 0:
                 flash("That username is already taken, please try another")
                 return render_template('watchlist_signup.html', form=form)
             else:
                 curs.execute("INSERT INTO users (username, password) \
-                              VALUES (%s, %s);", (thwart(username), thwart(password)))
+                              VALUES (%s, %s);", (username, password))
                 connection.commit()
                 flash("Account created successfully!")
                 curs.execute('SELECT uid from users where username = "%s";'%(username))
@@ -212,16 +165,16 @@ def watchlist_signup():
 
 ###### Registration End
 
-@app.route('/watchlist/me', methods = ['GET', 'POST'])
+@app.route('/me', methods = ['GET', 'POST'])
 def watchlist_me():
     return redirect(url_for("watchlist_mylists"))
 
-@app.route('/watchlist/mylists', methods = ['GET', 'POST'])
+@app.route('/mylists', methods = ['GET', 'POST'])
 def watchlist_mylists():
     try:
         session['logged_in']
         lists_info = []
-        curs, connection = connect()
+        connection, curs = connect()
         curs.execute('SELECT * \
                       FROM lists2 \
                       WHERE uid = %d and username = "%s"'%(session["uid"], session['username']))
@@ -238,9 +191,9 @@ def watchlist_mylists():
         return redirect(url_for("watchlist_login"))
         
 
-@app.route('/watchlists/mylists/<lid>')
+@app.route('/mylists/<lid>')
 def watchlist_list_view(lid):
-    curs, connection = connect()
+    connection, curs = connect()
     curs.execute('SELECT watchlist_name, data FROM lists2 WHERE lid = "%d"'%(int(lid)))
     list_info = curs.fetchone()
     name = list_info[0]
@@ -250,16 +203,16 @@ def watchlist_list_view(lid):
     return render_template("watchlist_list_view.html", name=name, movies=movies, size = len(movies), date=date)
 
 
-@app.route('/watchlist/new_list', methods = ['GET', 'POST'])
+@app.route('/new_list', methods = ['GET', 'POST'])
 def watchlist_new_list():
     try:
         if session['logged_in']:
             if request.method == "POST":
                 wlname = request.form['wlname']
-                curs, connection = connect()
+                connection, curs = connect()
                 curs.execute('INSERT INTO lists2 (uid, username, watchlist_name) \
                             VALUES (%d, "%s", "%s");'%
-                            (session["uid"], thwart(session["username"]), thwart(wlname)))
+                            (session["uid"], session["username"], wlname))
                 connection.commit()
                 flash('"%s" list added!'%(wlname))
                 curs.close()
@@ -270,7 +223,17 @@ def watchlist_new_list():
         return redirect(url_for("login"))
     except Exception as e:
         return str(e)
+
+def get_watchlists():
+    wls = []
+    connection, curs = connect()
+    curs.execute('SELECT * \
+                  FROM lists2 \
+                  WHERE uid = %d and username = "%s"'%(session["uid"], session['username']))
+    tups = curs.fetchall()
+    for tup in tups:
+        wls.append(tup)
+    return wls
     
 if __name__ == "__main__":
     app.run(debug=True)
-

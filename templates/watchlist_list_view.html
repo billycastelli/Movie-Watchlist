@@ -13,7 +13,7 @@
 	{% for i in range(size) %}
 	<div class="row">
 	  <div class="col-4 col-md-2">
-	      <a href = "http://williamcastelli.com/watchlist/movie/{{ movies[i][0] }}">
+	      <a href = "/movie?mid={{ movies[i][0] }}">
 	      <img class = "clickable" style = "width:100%" src = {{ movies[i][2] }}>
 	    </a>
 	    </div>
