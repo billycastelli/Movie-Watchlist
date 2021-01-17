@@ -1,10 +1,11 @@
 import json
-#import urllib2
+import os
 import requests
 import random
 
-api_key = '4b51b7e856525fe5568bac10da4ca7a7'
-api_url = 'https://api.themoviedb.org/3/'
+api_key = os.environ["TMDB_API_KEY"]
+api_url = os.environ["TMDB_API_URL"]
+
 
 class Movie:
     def __init__(self, mid, title, poster, popularity, release_date, overview):
