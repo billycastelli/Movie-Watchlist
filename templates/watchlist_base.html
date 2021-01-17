@@ -22,11 +22,11 @@
 <header>
 
   <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <a class="navbar-brand" href="{{ url_for('watchlist_home') }}">
+    <a class="navbar-brand" href="{{ url_for('watchlist_blueprint.watchlist_home') }}">
     <img style = "display: block;
     width: 60px;" src= "{{url_for('static', filename='images/film_icon_white.png') }}">
     </a>
-    <a class="navbar-brand" href="{{ url_for('watchlist_home') }}">Watchlist</a>
+    <a class="navbar-brand" href="{{ url_for('watchlist_blueprint.watchlist_home') }}">Watchlist</a>
 
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -35,10 +35,10 @@
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_mylists') }}">My Watchlists</a>
+          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_blueprint.watchlist_mylists') }}">My Watchlists</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_popular') }}">Popular Films</a>
+          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_blueprint.watchlist_popular') }}">Popular Films</a>
         </li>
         <form class="form-inline my-2 my-lg-0" action = "/search" method="get">
             <input class="searchbar form-control mr-2 mr-sm-2" name="title" type="search" placeholder="Movie Search" aria-label="Search">
@@ -49,17 +49,17 @@
       <ul class="navbar-nav ml-auto">
         {% if session['logged_in'] and session['username'] %}
         <li class="nav-item">
-          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_me') }}">Welcome, {{ session['username'] }}</a>
+          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_blueprint.watchlist_me') }}">Welcome, {{ session['username'] }}</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_logout') }}">Log Out</a>
+          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_blueprint.watchlist_logout') }}">Log Out</a>
         </li>
         {% else %}
         <li class="nav-item">
-          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_login') }}">Login</a>
+          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_blueprint.watchlist_login') }}">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_signup') }}">Sign Up</a>
+          <a class="nav-link text-nowrap" href="{{ url_for('watchlist_blueprint.watchlist_signup') }}">Sign Up</a>
         </li>
         {% endif %}
       </ul>

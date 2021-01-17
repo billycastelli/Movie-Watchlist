@@ -5,9 +5,9 @@
   <div class="text-center">
     <h4 style>Create a list...</h4>
     {% if session['logged_in'] == True %}
-    <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_new_list') }}" role="button">New List</a>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_blueprint.watchlist_new_list') }}" role="button">New List</a>
     {% else %}
-    <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_login') }}" role="button">New List</a>
+    <a class="btn btn-primary btn-lg" href="{{ url_for('watchlist_blueprint.watchlist_login') }}" role="button">New List</a>
     {% endif %}
 
   </div>
