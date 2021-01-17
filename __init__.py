@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, flash, url_for, redirect, session
 import tmdb
-from dbconnecter import connect
+from dbconnector import connect
 import watchlist
 
 from wtforms import Form, TextField, PasswordField, validators
@@ -134,10 +134,10 @@ def watchlist_signup():
             password = sha256_crypt.encrypt(str(form.password.data))
             connection, curs = connect()
             #Check if username already exists in database
-            count = curs.execute("SELECT * \
+            curs.execute("SELECT * \
                               FROM users \
                               WHERE username = (%s);", (username,))
-            if int(count) > 0:
+            if len(curs.fetchall()) > 0:
                 flash("That username is already taken, please try another")
                 return render_template('watchlist_signup.html', form=form)
             else:
@@ -176,7 +176,7 @@ def watchlist_mylists():
         lists_info = []
         connection, curs = connect()
         curs.execute('SELECT * \
-                      FROM lists2 \
+                      FROM lists \
                       WHERE uid = %d and username = "%s"'%(session["uid"], session['username']))
         listtup = curs.fetchall()
         for tup in listtup:
@@ -194,7 +194,7 @@ def watchlist_mylists():
 @app.route('/mylists/<lid>')
 def watchlist_list_view(lid):
     connection, curs = connect()
-    curs.execute('SELECT watchlist_name, data FROM lists2 WHERE lid = "%d"'%(int(lid)))
+    curs.execute('SELECT watchlist_name, data FROM lists WHERE lid = "%d"'%(int(lid)))
     list_info = curs.fetchone()
     name = list_info[0]
     date = list_info[1].strftime("%m-%d-%y")
@@ -210,7 +210,7 @@ def watchlist_new_list():
             if request.method == "POST":
                 wlname = request.form['wlname']
                 connection, curs = connect()
-                curs.execute('INSERT INTO lists2 (uid, username, watchlist_name) \
+                curs.execute('INSERT INTO lists (uid, username, watchlist_name) \
                             VALUES (%d, "%s", "%s");'%
                             (session["uid"], session["username"], wlname))
                 connection.commit()
@@ -228,7 +228,7 @@ def get_watchlists():
     wls = []
     connection, curs = connect()
     curs.execute('SELECT * \
-                  FROM lists2 \
+                  FROM lists \
                   WHERE uid = %d and username = "%s"'%(session["uid"], session['username']))
     tups = curs.fetchall()
     for tup in tups:
