@@ -46,7 +46,7 @@ def watchlist_film_view():
         try:
             curs.execute('INSERT INTO movies(mid, title, poster, release_date, overview, lid, uid) \
                             VALUES("%d", "%s", "%s", "%s", "%s", "%d", "%d")'
-                         % (int(movie.mid), movie.title, movie.poster, movie.release_date, movie.overview, lid, uid))
+                         % (int(movie.mid), movie.title, movie.poster, movie.release_date, movie.overview.encode('ascii', 'ignore').decode('utf8'), lid, uid))
             connection.commit()
             flash("%s added to list" % (str(movie.title)))
             curs.close()
