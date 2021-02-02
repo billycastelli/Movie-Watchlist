@@ -43,14 +43,18 @@ def watchlist_film_view():
         if duplicate_movie(curs, int(movie.mid), lid):
             flash("%s is already in that list!" % movie.title)
             return redirect(url_for("watchlist_blueprint.watchlist_film_view", mid=mid))
-        curs.execute('INSERT INTO movies(mid, title, poster, release_date, overview, lid, uid) \
-                        VALUES("%d", "%s", "%s", "%s", "%s", "%d", "%d")'
-                     % (int(movie.mid), movie.title, movie.poster, movie.release_date, movie.overview, lid, uid))
-        connection.commit()
-        flash("%s added to list" % (str(movie.title)))
-        curs.close()
-        connection.close()
-        return redirect(url_for("watchlist_blueprint.watchlist_film_view", mid=int(movie.mid)))
+        try:
+            curs.execute('INSERT INTO movies(mid, title, poster, release_date, overview, lid, uid) \
+                            VALUES("%d", "%s", "%s", "%s", "%s", "%d", "%d")'
+                         % (int(movie.mid), movie.title, movie.poster, movie.release_date, movie.overview, lid, uid))
+            connection.commit()
+            flash("%s added to list" % (str(movie.title)))
+            curs.close()
+            connection.close()
+            return redirect(url_for("watchlist_blueprint.watchlist_film_view", mid=int(movie.mid)))
+        except Exception as e:
+            print(str(e))
+            return render_template("watchlist_single_movie.html", movie=movie, wls=wls)
 
     try:
         session['logged_in']
