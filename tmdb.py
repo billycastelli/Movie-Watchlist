@@ -17,6 +17,7 @@ class Movie:
         self.overview = overview
         self.myRating = 0
 
+
 def get_json(url):
     '''Returns json text from a URL'''
     response = None
@@ -29,8 +30,10 @@ def get_json(url):
         if response != None:
             response.close()
 
-def get_trending(timeframe = 'week', media_type = 'movie', count=20):
-    trending_url = api_url + '%s/%s/%s?api_key=%s'%('trending', media_type, timeframe, api_key)
+
+def get_trending(timeframe='week', media_type='movie', count=20):
+    trending_url = api_url + \
+        '%s/%s/%s?api_key=%s' % ('trending', media_type, timeframe, api_key)
     base_img_url = 'https://image.tmdb.org/t/p/w500'
     json = get_json(trending_url)
     movies = []
@@ -43,11 +46,13 @@ def get_trending(timeframe = 'week', media_type = 'movie', count=20):
                             movie['overview']))
     return movies
 
+
 def search(title):
     title = "+".join(title.split())
     base_img_url = 'https://image.tmdb.org/t/p/w500'
     movies = []
-    search_url = api_url + 'search/movie?api_key=%s&language=en-US&query=%s'%(api_key, title)
+    search_url = api_url + \
+        'search/movie?api_key=%s&language=en-US&query=%s' % (api_key, title)
     json = get_json(search_url)
     for movie in json['results']:
         try:
@@ -61,20 +66,17 @@ def search(title):
             pass
     return movies
 
+
 def get_movie(mid):
-    movie_url = api_url + "movie/%s"%(mid) + "?language=en-US&api_key=%s"%(api_key)
+    movie_url = api_url + \
+        "movie/%s" % (mid) + "?language=en-US&api_key=%s" % (api_key)
     print(movie_url)
     base_img_url = 'https://image.tmdb.org/t/p/w500'
     movie = get_json(movie_url)
     movie = Movie(movie['id'],
-                  movie['title'].replace('"',''),
+                  movie['title'].replace('"', ''),
                   base_img_url + movie['poster_path'],
                   movie['popularity'],
                   movie['release_date'].replace('"', ''),
                   movie['overview'].replace('"', ''))
     return movie
-
-
-
-#https://api.themoviedb.org/3/search/movie?api_key=4b51b7e856525fe5568bac10da4ca7a7&language=en-US&query=star+wars&page=1&include_adult=false
-#https://api.themoviedb.org/3/search/movie?api_key=4b51b7e856525fe5568bac10da4ca7a7language=en-US?query=star+wars
