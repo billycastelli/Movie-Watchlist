@@ -22,10 +22,7 @@ def get_json(url):
     '''Returns json text from a URL'''
     response = None
     try:
-        # response = urllib2.urlopen(url)
-        # json_text = response.read().decode(encoding = 'utf-8')
         return requests.get(url).json()
-        return json.loads(json_text)
     finally:
         if response != None:
             response.close()
