@@ -22,10 +22,7 @@ def get_json(url):
     '''Returns json text from a URL'''
     response = None
     try:
-        #response = urllib2.urlopen(url)
-        #json_text = response.read().decode(encoding = 'utf-8')
         return requests.get(url).json()
-        return json.loads(json_text)
     finally:
         if response != None:
             response.close()
@@ -38,12 +35,14 @@ def get_trending(timeframe='week', media_type='movie', count=20):
     json = get_json(trending_url)
     movies = []
     for movie in json['results']:
-        movies.append(Movie(movie['id'],
-                            movie['title'],
-                            base_img_url + movie['poster_path'],
-                            movie['popularity'],
-                            movie['release_date'],
-                            movie['overview']))
+        movies.append(Movie(movie.get('id'),
+                            movie.get('title'),
+                            base_img_url + movie.get('poster_path'),
+                            movie.get('popularity'),
+                            movie.get('release_date'),
+                            movie.get('overview')
+                            )
+                      )
     return movies
 
 
@@ -56,12 +55,12 @@ def search(title):
     json = get_json(search_url)
     for movie in json['results']:
         try:
-            movies.append(Movie(movie['id'],
-                                movie['title'],
-                                base_img_url + movie['poster_path'],
-                                movie['popularity'],
-                                movie['release_date'],
-                                movie['overview']))
+            movies.append(Movie(movie.get('id'),
+                                movie.get('title'),
+                                base_img_url + movie.get('poster_path'),
+                                movie.get('popularity'),
+                                movie.get('release_date'),
+                                movie.get('overview')))
         except:
             pass
     return movies
@@ -70,13 +69,12 @@ def search(title):
 def get_movie(mid):
     movie_url = api_url + \
         "movie/%s" % (mid) + "?language=en-US&api_key=%s" % (api_key)
-    print(movie_url)
     base_img_url = 'https://image.tmdb.org/t/p/w500'
     movie = get_json(movie_url)
-    movie = Movie(movie['id'],
-                  movie['title'].replace('"', ''),
-                  base_img_url + movie['poster_path'],
-                  movie['popularity'],
-                  movie['release_date'].replace('"', ''),
-                  movie['overview'].replace('"', ''))
+    movie = Movie(movie.get('id'),
+                  movie.get('title').replace('"', ''),
+                  base_img_url + movie.get('poster_path'),
+                  movie.get('popularity'),
+                  movie.get('release_date').replace('"', ''),
+                  movie.get('overview').replace('"', ''))
     return movie
