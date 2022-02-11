@@ -9,7 +9,7 @@ Jinja2==2.11.3
 MarkupSafe==1.1.1
 mysql-connector-python==8.0.22
 passlib==1.7.4
-protobuf==3.14.0
+protobuf==3.15.0
 requests==2.25.1
 six==1.15.0
 urllib3==1.26.4
